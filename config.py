@@ -4,6 +4,7 @@ from pathlib import Path
 WALLETS_PATH = 'wallets.txt'
 PRIVATE_KEYS_PATH = 'private_keys.txt'
 ENCRYPTED_DATA_PATH = 'encrypted_data.txt'
+PROXIES_PATH = 'proxy.txt'
 
 OKX_API_INFO = {
         'apiKey': "",
@@ -17,12 +18,6 @@ with open('data/rpc.json') as file:
 
 with open('data/abi/erc20_abi.json') as file:
     ERC20_ABI = json.load(file)
-
-with open("accounts.txt", "r") as file:
-    ACCOUNTS = [row.strip() for row in file]
-
-with open("proxy.txt", "r") as file:
-    PROXIES = [row.strip() for row in file]
 
 with open('data/abi/zksync/deposit.json') as file:
     ZKSYNC_DEPOSIT_ABI = json.load(file)

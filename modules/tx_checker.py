@@ -3,16 +3,17 @@ import random
 
 from eth_typing import ChecksumAddress
 from loguru import logger
-from web3 import Web3, AsyncHTTPProvider
+from web3 import AsyncWeb3, AsyncHTTPProvider
 from web3.eth import AsyncEth
 from eth_account import Account as EthereumAccount
 from tabulate import tabulate
+from utils.password_handler import get_wallet_data
 
-from config import ACCOUNTS, RPC
+from config import RPC
 
 
 async def get_nonce(address: ChecksumAddress):
-    web3 = Web3(
+    web3 = AsyncWeb3(
         AsyncHTTPProvider(random.choice(RPC["zksync"]["rpc"])),
         modules={"eth": (AsyncEth,)},
         middlewares=[],
@@ -28,7 +29,8 @@ async def check_tx():
 
     logger.info("Start transaction checker")
 
-    for _id, pk in enumerate(ACCOUNTS, start=1):
+    accounts = [data['private_key'] for _, data in get_wallet_data().items()]
+    for _id, pk in enumerate(accounts, start=1):
         account = EthereumAccount.from_key(pk)
 
         tasks.append(asyncio.create_task(get_nonce(account.address), name=account.address))

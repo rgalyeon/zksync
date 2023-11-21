@@ -7,11 +7,11 @@ import questionary
 from loguru import logger
 from questionary import Choice
 
-from config import ACCOUNTS, PROXIES
 from modules_settings import *
 from utils.helpers import remove_wallet
 from utils.sleeping import sleep
 from utils.logs_handler import filter_out_utils
+from utils.password_handler import get_wallet_data
 from settings import (
     USE_PROXY,
     RANDOM_WALLET,
@@ -27,6 +27,7 @@ def get_module():
     result = questionary.select(
         "Select a method to get started",
         choices=[
+            Choice("0) Encrypt private keys and proxies", encrypt_privates),
             Choice("0) Make deposit from OKX", withdraw_okx),
             Choice("1) Make bridge ZkSync", bridge_zksync),
             Choice("2) Make withdraw from ZkSync", withdraw_zksync),
@@ -92,8 +93,14 @@ def get_module():
 
 
 def get_wallets():
+    wallet_data = get_wallet_data()
+
+    accounts, proxies = [], []
+    for wallet, data in wallet_data.items():
+        accounts.append(data['private_key'])
+        proxies.append(data['proxy'])
     if USE_PROXY:
-        account_with_proxy = dict(zip(ACCOUNTS, PROXIES))
+        account_with_proxy = dict(zip(accounts, proxies))
 
         wallets = [
             {
@@ -108,7 +115,7 @@ def get_wallets():
                 "id": _id,
                 "key": key,
                 "proxy": None
-            } for _id, key in enumerate(ACCOUNTS, start=1)
+            } for _id, key in enumerate(accounts, start=1)
         ]
     return wallets
 
@@ -130,6 +137,8 @@ def _async_run_module(module, account_id, key, recipient):
 
 
 def main(module):
+    if module == encrypt_privates:
+        return encrypt_privates(force=True)
     wallets = get_wallets()
 
     if RANDOM_WALLET:
