@@ -11,6 +11,7 @@ from config import ACCOUNTS, PROXIES
 from modules_settings import *
 from utils.helpers import remove_wallet
 from utils.sleeping import sleep
+from utils.logs_handler import filter_out_utils
 from settings import (
     USE_PROXY,
     RANDOM_WALLET,
@@ -26,6 +27,7 @@ def get_module():
     result = questionary.select(
         "Select a method to get started",
         choices=[
+            Choice("0) Make deposit from OKX", withdraw_okx),
             Choice("1) Make bridge ZkSync", bridge_zksync),
             Choice("2) Make withdraw from ZkSync", withdraw_zksync),
             Choice("3) Make bridge on Orbiter", bridge_orbiter),
@@ -148,7 +150,7 @@ def main(module):
 if __name__ == '__main__':
     print("❤️ Subscribe to me – https://t.me/sybilwave\n")
 
-    logger.add("logging.log")
+    logger.add('logs.txt', filter=filter_out_utils)
 
     module = get_module()
     if module == "tx_checker":

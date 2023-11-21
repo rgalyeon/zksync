@@ -42,6 +42,25 @@ async def withdraw_zksync(account_id, key, proxy):
     await zksync.withdraw(min_amount, max_amount, decimal, all_amount, min_percent, max_percent)
 
 
+async def withdraw_okx(_id, key, proxy):
+    """
+    Withdraw ETH from OKX. OKX support only ETH for Starknet chain
+    ______________________________________________________
+    min_amount - min amount (ETH)
+    max_amount - max_amount (ETH)
+    terminate - if True - terminate program if money is not withdrawn
+    """
+    token = 'ETH'
+
+    min_amount = 0.002
+    max_amount = 0.004
+
+    terminate = True
+
+    okx_exchange = Okx(_id, key, proxy, 'zksync')
+    await okx_exchange.okx_withdraw(min_amount, max_amount, token, 'zkSync Era', terminate)
+
+
 async def bridge_orbiter(account_id, key, proxy):
     """
     Bridge from orbiter
