@@ -56,14 +56,17 @@ def load_wallet_data(password) -> Dict:
 
     # check encrypted data
     missed_wallets = []
+    curr_wallet_data = {}
     for wallet in wallets:
         if wallet not in wallet_data:
             missed_wallets.append(wallet)
+        else:
+            curr_wallet_data[wallet] = wallet_data[wallet]
     if missed_wallets:
         print(f'This wallets are not encrypted. Please, use encrypt module')
         print('\n'.join(missed_wallets))
 
-    return wallet_data
+    return curr_wallet_data
 
 
 def encrypt_private_keys(password: bytes):
