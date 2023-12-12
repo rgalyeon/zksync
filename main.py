@@ -2,6 +2,7 @@ import random
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
+from itertools import count
 
 import questionary
 from loguru import logger
@@ -24,70 +25,72 @@ from settings import (
 
 
 def get_module():
+    counter = count(1)
     result = questionary.select(
         "Select a method to get started",
         choices=[
-            Choice("0) Encrypt private keys and proxies", encrypt_privates),
-            Choice("0) Make deposit from OKX", withdraw_okx),
-            Choice("1) Make bridge ZkSync", bridge_zksync),
-            Choice("2) Make withdraw from ZkSync", withdraw_zksync),
-            Choice("3) Make bridge on Orbiter", bridge_orbiter),
-            Choice("4) Wrap ETH", wrap_eth),
-            Choice("5) Unwrap ETH", unwrap_eth),
-            Choice("6) Make swap on SyncSwap", swap_syncswap),
-            Choice("7) Add liquidity on SyncSwap", liquidity_syncswap),
-            Choice("8) Make swap on Mute", swap_mute),
-            Choice("9) Make swap on Space.fi", swap_spacefi),
-            Choice("10) Add liquidity on Space.fi", liquidity_spacefi),
-            Choice("11) Make swap on PancakeSwap", swap_pancake),
-            Choice("12) Make swap on WooFi", swap_woofi),
-            Choice("13) Make swap on Odos", swap_odos),
-            Choice("14) Make swap on ZkSwap", swap_zkswap),
-            Choice("15) Make swap on XYSwap", swap_xyswap),
-            Choice("16) Make swap on OpenOcean", swap_openocean),
-            Choice("17) Make swap on 1inch", swap_inch),
-            Choice("18) Make swap on Maverick", swap_maverick),
-            Choice("19) Make swap on VeSync", swap_vesync),
-            Choice("20) Make bungee refuel", bungee_refuel),
-            Choice("21) Stargate bridge MAV", stargate_bridge),
-            Choice("22) Deposit Eralend", deposit_eralend),
-            Choice("23) Withdraw Eralend", withdraw_erlaned),
-            Choice("24) Enable collateral on Eralend", enable_collateral_eralend),
-            Choice("25) Disable collateral on Eralend", disable_collateral_eralend),
-            Choice("26) Deposit Basilisk", deposit_basilisk),
-            Choice("27) Withdraw Basilisk", withdraw_basilisk),
-            Choice("28) Enable collateral on Basilisk", enable_collateral_basilisk),
-            Choice("29) Disable collateral on Basilisk", disable_collateral_basilisk),
-            Choice("30) Deposit ReactorFusion", deposit_reactorfusion),
-            Choice("31) Withdraw ReactorFusion", withdraw_reactorfusion),
-            Choice("32) Enable collateral on ReactorFusion", enable_collateral_reactorfusion),
-            Choice("33) Disable collateral on ReactorFusion", disable_collateral_reactorfusion),
-            Choice("34) Deposit ZeroLend", deposit_zerolend),
-            Choice("35) Withdraw ZeroLend", withdraw_zerolend),
-            Choice("36) Mint ZkStars NFT", mint_zkstars),
-            Choice("37) Create NFT collection on Omnisea", create_omnisea),
-            Choice("38) Mint and bridge NFT L2Telegraph", bridge_nft),
-            Choice("39) Mint Tavaera ID + NFT", mint_tavaera),
-            Choice("40) Mint MailZero NFT", mint_mailzero_nft),
-            Choice("41) Mint NFT on NFTS2ME", mint_nft),
-            Choice("42) Mint ZKS Domain", mint_zks_domain),
-            Choice("43) Mint Era Domain", mint_era_domain),
-            Choice("44) Send message L2Telegraph", send_message),
-            Choice("45) Dmail sending mail", send_mail),
-            Choice("46) Create gnosis safe", create_safe),
-            Choice("47) Swap tokens to ETH", swap_tokens),
-            Choice("48) MultiSwap", swap_multiswap),
-            Choice("49) Use custom routes", custom_routes),
-            Choice("50) MultiApprove", multi_approve),
-            Choice("51) Check transaction count", "tx_checker"),
-            Choice("52) Exit", "exit"),
+            Choice(f"{next(counter)}) Encrypt private keys and proxies", encrypt_privates),
+            Choice(f"{next(counter)}) Make deposit from OKX", withdraw_okx),
+            Choice(f"{next(counter)}) Make bridge ZkSync", bridge_zksync),
+            Choice(f"{next(counter)}) Make withdraw from ZkSync", withdraw_zksync),
+            Choice(f"{next(counter)}) Make bridge on Orbiter", bridge_orbiter),
+            Choice(f"{next(counter)}) Wrap ETH", wrap_eth),
+            Choice(f"{next(counter)}) Unwrap ETH", unwrap_eth),
+            Choice(f"{next(counter)}) Make swap on SyncSwap", swap_syncswap),
+            Choice(f"{next(counter)}) Add liquidity on SyncSwap", liquidity_syncswap),
+            Choice(f"{next(counter)}) Make swap on Mute", swap_mute),
+            Choice(f"{next(counter)}) Make swap on Space.fi", swap_spacefi),
+            Choice(f"{next(counter)}) Add liquidity on Space.fi", liquidity_spacefi),
+            Choice(f"{next(counter)}) Make swap on PancakeSwap", swap_pancake),
+            Choice(f"{next(counter)}) Make swap on WooFi", swap_woofi),
+            Choice(f"{next(counter)}) Make swap on Odos", swap_odos),
+            Choice(f"{next(counter)}) Make swap on ZkSwap", swap_zkswap),
+            Choice(f"{next(counter)}) Make swap on XYSwap", swap_xyswap),
+            Choice(f"{next(counter)}) Make swap on OpenOcean", swap_openocean),
+            Choice(f"{next(counter)}) Make swap on 1inch", swap_inch),
+            Choice(f"{next(counter)}) Make swap on Maverick", swap_maverick),
+            Choice(f"{next(counter)}) Make swap on VeSync", swap_vesync),
+            Choice(f"{next(counter)}) Make bungee refuel", bungee_refuel),
+            Choice(f"{next(counter)}) Stargate bridge MAV", stargate_bridge),
+            Choice(f"{next(counter)}) Deposit Eralend", deposit_eralend),
+            Choice(f"{next(counter)}) Withdraw Eralend", withdraw_erlaned),
+            Choice(f"{next(counter)}) Enable collateral on Eralend", enable_collateral_eralend),
+            Choice(f"{next(counter)}) Disable collateral on Eralend", disable_collateral_eralend),
+            Choice(f"{next(counter)}) Deposit Basilisk", deposit_basilisk),
+            Choice(f"{next(counter)}) Withdraw Basilisk", withdraw_basilisk),
+            Choice(f"{next(counter)}) Enable collateral on Basilisk", enable_collateral_basilisk),
+            Choice(f"{next(counter)}) Disable collateral on Basilisk", disable_collateral_basilisk),
+            Choice(f"{next(counter)}) Deposit ReactorFusion", deposit_reactorfusion),
+            Choice(f"{next(counter)}) Withdraw ReactorFusion", withdraw_reactorfusion),
+            Choice(f"{next(counter)}) Enable collateral on ReactorFusion", enable_collateral_reactorfusion),
+            Choice(f"{next(counter)}) Disable collateral on ReactorFusion", disable_collateral_reactorfusion),
+            Choice(f"{next(counter)}) Deposit ZeroLend", deposit_zerolend),
+            Choice(f"{next(counter)}) Withdraw ZeroLend", withdraw_zerolend),
+            Choice(f"{next(counter)}) Mint ZkStars NFT", mint_zkstars),
+            Choice(f"{next(counter)}) Create NFT collection on Omnisea", create_omnisea),
+            Choice(f"{next(counter)}) Mint and bridge NFT L2Telegraph", bridge_nft),
+            Choice(f"{next(counter)}) Mint Tavaera ID + NFT", mint_tavaera),
+            Choice(f"{next(counter)}) Mint MailZero NFT", mint_mailzero_nft),
+            Choice(f"{next(counter)}) Mint NFT on NFTS2ME", mint_nft),
+            Choice(f"{next(counter)}) Mint ZKS Domain", mint_zks_domain),
+            Choice(f"{next(counter)}) Mint Era Domain", mint_era_domain),
+            Choice(f"{next(counter)}) Send message L2Telegraph", send_message),
+            Choice(f"{next(counter)}) Dmail sending mail", send_mail),
+            Choice(f"{next(counter)}) Create gnosis safe", create_safe),
+            Choice(f"{next(counter)}) Swap tokens to ETH", swap_tokens),
+            Choice(f"{next(counter)}) MultiSwap", swap_multiswap),
+            Choice(f"{next(counter)}) Use custom routes", custom_routes),
+            Choice(f"{next(counter)}) Use automatic routes", automatic_routes),
+            Choice(f"{next(counter)}) MultiApprove", multi_approve),
+            Choice(f"{next(counter)}) Check transaction count", "tx_checker"),
+            Choice(f"{next(counter)}) Exit", "exit"),
         ],
         qmark="⚙️ ",
         pointer="✅ "
     ).ask()
     if result == "exit":
-        print("\n❤️ Subscribe to me – https://t.me/sybilwave\n")
-        print("🤑 Donate me: 0x00000b0ddce0bfda4531542ad1f2f5fad7b9cde9")
+        print("❤️ Project author – https://t.me/sybilwave\n")
+        print("❤️ Fork author – https://t.me/rgalyeon\n")
         sys.exit()
     return result
 
@@ -157,7 +160,8 @@ def main(module):
 
 
 if __name__ == '__main__':
-    print("❤️ Subscribe to me – https://t.me/sybilwave\n")
+    print("❤️ Project author – https://t.me/sybilwave\n")
+    print("❤️ Fork author – https://t.me/rgalyeon\n")
 
     logger.add('logs.txt', filter=filter_out_utils)
 
@@ -167,5 +171,4 @@ if __name__ == '__main__':
     else:
         main(module)
 
-    print("\n❤️ Subscribe to me – https://t.me/sybilwave\n")
-    print("🤑 Donate me: 0x00000b0ddce0bfda4531542ad1f2f5fad7b9cde9")
+    print("ALL DONE!")

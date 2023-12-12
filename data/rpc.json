@@ -33,5 +33,26 @@
     ],
     "explorer": "https://explorer.zksync.io/tx/",
     "token": "ETH"
+  },
+  "base": {
+    "rpc": [
+      "https://rpc.ankr.com/base"
+    ],
+    "explorer": "https://basescan.org/tx/",
+    "token": "ETH"
+  },
+  "scroll": {
+    "rpc": [
+      "https://rpc.scroll.io"
+    ],
+    "explorer": "https://scrollscan.com/tx/",
+    "token": "ETH"
+  },
+  "linea": {
+    "rpc": [
+      "https://1rpc.io/linea"
+    ],
+    "explorer": "https://lineascan.build/tx/",
+    "token": "ETH"
   }
 }

@@ -44,21 +44,23 @@ async def withdraw_zksync(account_id, key, proxy):
 
 async def withdraw_okx(_id, key, proxy):
     """
-    Withdraw ETH from OKX. OKX support only ETH for Starknet chain
+    Withdraw ETH from OKX
     ______________________________________________________
     min_amount - min amount (ETH)
     max_amount - max_amount (ETH)
+    chains - ['zksync', 'arbitrum', 'linea', 'base', 'optimism']
     terminate - if True - terminate program if money is not withdrawn
     """
     token = 'ETH'
+    chains = ['arbitrum', 'zksync', 'linea', 'base', 'optimism']
 
-    min_amount = 0.002
-    max_amount = 0.004
+    min_amount = 0.0075
+    max_amount = 0.01
 
     terminate = True
 
-    okx_exchange = Okx(_id, key, proxy, 'zksync')
-    await okx_exchange.okx_withdraw(min_amount, max_amount, token, 'zkSync Era', terminate)
+    okx_exchange = Okx(_id, key, proxy, chains)
+    await okx_exchange.okx_withdraw(min_amount, max_amount, token, terminate)
 
 
 async def bridge_orbiter(account_id, key, proxy):
@@ -900,6 +902,36 @@ async def custom_routes(account_id, key, proxy):
 
     routes = Routes(account_id, key, proxy)
     await routes.start(use_modules, sleep_from, sleep_to, random_module)
+
+
+async def automatic_routes(account_id, key, type_account):
+    """
+    Модуль автоматически генерирует пути по которому пройдет кошелек,
+    меняя вероятности выбрать тот или иной модуль для каждого кошелька
+
+    Parameters
+    ----------
+    transaction_count - количество транзакций (не обязательно все выполнятся, модули могут пропускаться)
+    cheap_ratio - от 0 до 1, доля дешевых транзакций при построении маршрута
+    cheap_modules - список модулей, которые будут использоваться в качестве дешевых
+    expensive_modules - список модулей, которые будут использоваться в качестве дорогих
+    -------
+
+    """
+
+    transaction_count = 25
+    cheap_ratio = 1.0
+
+    sleep_from = 30000
+    sleep_to = 50000
+
+    cheap_modules = [send_mail, enable_collateral_eralend, enable_collateral_basilisk, enable_collateral_reactorfusion,
+                     create_safe, mint_zkstars, mint_tavaera]
+    expensive_modules = [swap_multiswap, deposit_reactorfusion, deposit_zerolend, deposit_basilisk, deposit_eralend,
+                         create_omnisea]
+
+    routes = Routes(account_id, key, type_account)
+    await routes.start_automatic(transaction_count, cheap_ratio, sleep_from, sleep_to, cheap_modules, expensive_modules)
 
 
 async def multi_approve(account_id, key, proxy):

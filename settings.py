@@ -18,6 +18,7 @@ USE_PROXY = False
 # GWEI CONTROL MODE
 CHECK_GWEI = True  # True or False
 MAX_GWEI = 25
+REALTIME_GWEI = True  # если включен, то будет считывать гвей из файла realtime_settings.json в реалтайме
 
 # Рандомизация гвея. Если включен режим, то максимальный гвей будет выбираться из диапазона
 RANDOMIZE_GWEI = True  # if True, max Gwei will be randomized for each wallet for each transaction
@@ -26,7 +27,7 @@ MAX_GWEI_RANGE = [24, 27]
 GAS_SLEEP_FROM = 100
 GAS_SLEEP_TO = 600
 
-GAS_MULTIPLIER = 0.8
+GAS_MULTIPLIER = 1
 
 # RETRY MODE
 RETRY_COUNT = 3

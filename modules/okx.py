@@ -2,7 +2,7 @@ import asyncio
 import traceback
 
 from . import ZkSync
-from config import OKX_API_INFO
+from config import OKX_API_INFO, CHAINS_OKX
 from loguru import logger
 import random
 
@@ -14,8 +14,8 @@ from utils.helpers import retry
 
 class Okx(ZkSync):
 
-    def __init__(self, _id: int, private_key: str, proxy, chain) -> None:
-        super().__init__(account_id=_id, private_key=private_key, proxy=proxy, chain=chain)
+    def __init__(self, _id: int, private_key: str, proxy, chains) -> None:
+        super().__init__(account_id=_id, private_key=private_key, proxy=proxy, chain=random.choice(chains))
         self.api_info = OKX_API_INFO
 
     async def get_ccxt(self):
@@ -94,9 +94,9 @@ class Okx(ZkSync):
         return networks, network_data
 
     @retry
-    async def okx_withdraw(self, min_amount, max_amount, token_name, network, terminate=True):
+    async def okx_withdraw(self, min_amount, max_amount, token_name, terminate=True):
         amount = round(random.uniform(min_amount, max_amount), 8)
-
+        network = CHAINS_OKX[self.chain]
         logger.info(f'[{self.account_id}][{self.address}] Start withdrawal from OKX {amount} {token_name}')
         curr_balance = await self.w3.eth.get_balance(self.address)
 
