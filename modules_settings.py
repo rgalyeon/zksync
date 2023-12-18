@@ -69,6 +69,8 @@ async def bridge_orbiter(account_id, key, proxy):
     ______________________________________________________
     from_chain – ethereum, polygon_zkevm, arbitrum, optimism, zksync | Select one
     to_chain – ethereum, polygon_zkevm, arbitrum, optimism, zksync | Select one
+
+    save_funds - how much eth save on the account (min and max, choose randomly)
     """
 
     from_chain = "zksync"
@@ -82,9 +84,10 @@ async def bridge_orbiter(account_id, key, proxy):
 
     min_percent = 5
     max_percent = 10
+    save_funds = [0.0006, 0.001]
 
     orbiter = Orbiter(account_id, key, from_chain, proxy)
-    await orbiter.bridge(to_chain, min_amount, max_amount, decimal, all_amount, min_percent, max_percent)
+    await orbiter.bridge(to_chain, min_amount, max_amount, decimal, all_amount, min_percent, max_percent, save_funds)
 
 
 async def wrap_eth(account_id, key, proxy):

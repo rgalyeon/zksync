@@ -1,3 +1,4 @@
+import random
 from typing import Union
 
 import aiohttp
@@ -6,7 +7,9 @@ from loguru import logger
 from utils.gas_checker import check_gas
 from utils.helpers import retry
 from .account import Account
-from config import ORBITER_CONTRACT
+from config import ORBITER_MAKER
+from typing import List
+from web3 import Web3
 
 
 class Orbiter(Account):
@@ -24,6 +27,24 @@ class Orbiter(Account):
             "base": "8453",
             "linea": "59144",
             "zora": "7777777",
+        }
+
+        self.orbiter_ids = {
+            'ethereum': '1',
+            'optimism': '7',
+            'bsc': '15',
+            'arbitrum': '2',
+            'nova': '16',
+            'polygon': '6',
+            'polygon_zkevm': '17',
+            'zksync': '14',
+            'zksync_lite': '3',
+            'starknet': '4',
+            'linea': '23',
+            'base': '21',
+            'mantle': '24',
+            'scroll': '19',
+            'zora': '30',
         }
 
     @retry
@@ -66,7 +87,8 @@ class Orbiter(Account):
             decimal: int,
             all_amount: bool,
             min_percent: int,
-            max_percent: int
+            max_percent: int,
+            save_funds: List[float, float]
     ):
         amount_wei, amount, balance = await self.get_amount(
             "ETH",
@@ -78,13 +100,19 @@ class Orbiter(Account):
             max_percent
         )
 
+        from_chain_id = self.orbiter_ids[self.chain]
+        to_chain_id = self.orbiter_ids[destination_chain]
+        maker_x_maker = f'{from_chain_id}-{to_chain_id}'
+
+        contract = ORBITER_MAKER[maker_x_maker]['ETH-ETH']['makerAddress']
+
+        if all_amount:
+            save_funds = Web3.from_wei(Web3.to_wei(random.uniform(*save_funds), 'ether'), 'ether')
+            amount -= save_funds
+
         logger.info(
             f"[{self.account_id}][{self.address}] Bridge {self.chain} –> {destination_chain} | {amount} ETH"
         )
-
-        if ORBITER_CONTRACT == "":
-            logger.error(f"[{self.account_id}][{self.address}] Don't have orbiter contract")
-            return
 
         bridge_amount = await self.get_bridge_amount(self.chain, destination_chain, amount)
 
@@ -97,7 +125,7 @@ class Orbiter(Account):
             logger.error(f"[{self.account_id}][{self.address}] Insufficient funds!")
         else:
             tx_data = await self.get_tx_data(bridge_amount)
-            tx_data.update({"to": self.w3.to_checksum_address(ORBITER_CONTRACT)})
+            tx_data.update({"to": self.w3.to_checksum_address(contract)})
 
             signed_txn = await self.sign(tx_data)
 
