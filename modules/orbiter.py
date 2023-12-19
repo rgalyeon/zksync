@@ -88,7 +88,7 @@ class Orbiter(Account):
             all_amount: bool,
             min_percent: int,
             max_percent: int,
-            save_funds: List[float, float]
+            save_funds: List[float]
     ):
         amount_wei, amount, balance = await self.get_amount(
             "ETH",
