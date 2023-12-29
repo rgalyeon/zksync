@@ -7,14 +7,20 @@ from loguru import logger
 from utils.gas_checker import check_gas
 from utils.helpers import retry
 from .account import Account
-from config import ORBITER_MAKER
+from config import ORBITER_MAKER, RPC
 from typing import List
 from web3 import Web3
+from eth_account import Account as EthereumAccount
 
 
 class Orbiter(Account):
-    def __init__(self, account_id: int, private_key: str, chain: str, proxy: Union[None, str]) -> None:
-        super().__init__(account_id=account_id, private_key=private_key, proxy=proxy, chain=chain)
+    def __init__(self, account_id: int,
+                 private_key: str,
+                 chains: List[str],
+                 proxy: Union[None, str],
+                 min_required_amount: float) -> None:
+        chains_with_balance = self.find_balance(chains, private_key, min_required_amount)
+        super().__init__(account_id=account_id, private_key=private_key, proxy=proxy, chain=chains_with_balance[0])
 
         self.chain_ids = {
             "ethereum": "1",
@@ -76,6 +82,23 @@ class Orbiter(Account):
                 logger.error(f"[{self.account_id}][{self.address}] Orbiter error | {error_data}")
 
                 return False
+
+    def find_balance(self, chains, private_key, min_required_amount):
+        chains_with_balance = []
+        for chain in chains:
+            self.w3 = Web3(
+                Web3.HTTPProvider(random.choice(RPC[chain]["rpc"])),
+            )
+            account = EthereumAccount.from_key(private_key)
+            balance_wei = self.w3.eth.get_balance(self.w3.to_checksum_address(account.address))
+            balance = self.w3.from_wei(balance_wei, 'ether')
+            if balance >= min_required_amount:
+                chains_with_balance.append((chain, balance))
+        if not chains_with_balance:
+            raise ValueError('No chains with required balance! Change min_required_amount!')
+        chains_with_balance.sort(key=lambda x: x[1], reverse=True)
+        chains_with_balance = [chain for chain, balance in chains_with_balance]
+        return chains_with_balance
 
     @retry
     @check_gas

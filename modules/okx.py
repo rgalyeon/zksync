@@ -1,4 +1,5 @@
 import asyncio
+import aiohttp
 import traceback
 
 from . import ZkSync
@@ -10,13 +11,106 @@ import ccxt.async_support as ccxt_async
 import math
 import re
 from utils.helpers import retry
+import datetime
+import base64
+import hmac
+from typing import List
 
 
 class Okx(ZkSync):
 
-    def __init__(self, _id: int, private_key: str, proxy, chains) -> None:
-        super().__init__(account_id=_id, private_key=private_key, proxy=proxy, chain=random.choice(chains))
+    def __init__(self, account_id: int, private_key: str, chains: List, proxy) -> None:
+        super().__init__(account_id=account_id, private_key=private_key, chain=random.choice(chains), proxy=proxy)
         self.api_info = OKX_API_INFO
+
+    async def get_data(self, request_path="/api/v5/account/balance?ccy=USDT", body='', meth="GET"):
+
+        def signature(timestamp: str, method: str, request_path: str, secret_key: str, body: str = "") -> str:
+            if not body:
+                body = ""
+
+            message = timestamp + method.upper() + request_path + body
+            mac = hmac.new(
+                bytes(secret_key, encoding="utf-8"),
+                bytes(message, encoding="utf-8"),
+                digestmod="sha256",
+            )
+            d = mac.digest()
+            return base64.b64encode(d).decode("utf-8")
+
+        dt_now = datetime.datetime.utcnow()
+        ms = str(dt_now.microsecond).zfill(6)[:3]
+        timestamp = f"{dt_now:%Y-%m-%dT%H:%M:%S}.{ms}Z"
+
+        headers = {
+            "Content-Type": "application/json",
+            "OK-ACCESS-KEY": self.api_info['apiKey'],
+            "OK-ACCESS-SIGN": signature(timestamp, meth, request_path, self.api_info['secret'], body),
+            "OK-ACCESS-TIMESTAMP": timestamp,
+            "OK-ACCESS-PASSPHRASE": self.api_info['password'],
+            'x-simulated-trading': '0'
+        }
+
+        return headers
+
+    @staticmethod
+    async def make_http_request(url, method="GET", headers=None, params=None, data=None, timeout=10):
+        async with aiohttp.ClientSession() as session:
+            kwargs = {"url": url, "method": method, "timeout": timeout}
+
+            if headers:
+                kwargs["headers"] = headers
+            if params:
+                kwargs["params"] = params
+            if data:
+                kwargs["data"] = data
+
+            async with session.request(**kwargs) as response:
+                return await response.json()
+
+    async def transfer_from_subaccounts(self, token_name):
+
+        try:
+            headers = await self.get_data(request_path="/api/v5/users/subaccount/list", meth="GET")
+            list_sub = await self.make_http_request("https://www.okx.cab/api/v5/users/subaccount/list", headers=headers)
+
+            for sub_data in list_sub['data']:
+                name_sub = sub_data['subAcct']
+
+                headers = await self.get_data(
+                    request_path=f"/api/v5/asset/subaccount/balances?subAcct={name_sub}&ccy={token_name}", meth="GET")
+                sub_balance = await self.make_http_request(
+                    f"https://www.okx.cab/api/v5/asset/subaccount/balances?subAcct={name_sub}&ccy={token_name}",
+                    headers=headers)
+                sub_balance = sub_balance['data'][0]['bal']
+                if float(sub_balance):
+                    logger.info(f'Transfer {sub_balance} {token_name} from {name_sub} to main account')
+                    body = {"ccy": f"{token_name}", "amt": str(sub_balance), "from": 6, "to": 6, "type": "2",
+                            "subAcct": name_sub}
+                    headers = await self.get_data(request_path=f"/api/v5/asset/transfer", body=str(body), meth="POST")
+                    await self.make_http_request("https://www.okx.cab/api/v5/asset/transfer", data=str(body),
+                                                 method="POST", headers=headers)
+                await asyncio.sleep(1)
+
+        except Exception as error:
+            logger.error(f'Transfer from sub to main error {error}')
+            raise ValueError
+
+    async def transfer_spot_to_funding(self, token_name):
+
+        headers = await self.get_data(request_path=f"/api/v5/account/balance?ccy={token_name}")
+        balance = await self.make_http_request(f'https://www.okx.cab/api/v5/account/balance?ccy={token_name}',
+                                               headers=headers)
+        if balance["code"] == "0" and balance["data"][0]["details"]:
+            balance = balance["data"][0]["details"][0]["cashBal"]
+
+            if balance != 0:
+                logger.info(f'Transfer {balance} {token_name} from spot to funding')
+                body = {"ccy": f"{token_name}", "amt": float(balance), "from": 18, "to": 6, "type": "0", "subAcct": "",
+                        "clientId": "", "loanTrans": "", "omitPosRisk": ""}
+                headers = await self.get_data(request_path=f"/api/v5/asset/transfer", body=str(body), meth="POST")
+                await self.make_http_request("https://www.okx.cab/api/v5/asset/transfer", data=str(body),
+                                             method="POST", headers=headers)
 
     async def get_ccxt(self):
         exchange_config = self.api_info
@@ -95,10 +189,14 @@ class Okx(ZkSync):
 
     @retry
     async def okx_withdraw(self, min_amount, max_amount, token_name, terminate=True):
-        amount = round(random.uniform(min_amount, max_amount), 8)
         network = CHAINS_OKX[self.chain]
+        amount = round(random.uniform(min_amount, max_amount), 8)
+
         logger.info(f'[{self.account_id}][{self.address}] Start withdrawal from OKX {amount} {token_name}')
         curr_balance = await self.w3.eth.get_balance(self.address)
+
+        await self.transfer_from_subaccounts(token_name)
+        # await self.transfer_spot_to_funding(token_name)
 
         exchange = await self.get_ccxt()
         networks, networks_data = await self.okx_get_withdrawal_info(exchange, token_name)

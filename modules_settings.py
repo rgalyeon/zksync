@@ -59,7 +59,7 @@ async def withdraw_okx(_id, key, proxy):
 
     terminate = True
 
-    okx_exchange = Okx(_id, key, proxy, chains)
+    okx_exchange = Okx(_id, key, chains, proxy)
     await okx_exchange.okx_withdraw(min_amount, max_amount, token, terminate)
 
 
@@ -71,10 +71,11 @@ async def bridge_orbiter(account_id, key, proxy):
     to_chain – ethereum, polygon_zkevm, arbitrum, optimism, zksync | Select one
 
     save_funds - how much eth save on the account (min and max, choose randomly)
+    min_required_amount - минимальная требуемая сумма в сети, на которую будет реагировать модуль в eth
     """
 
-    from_chain = "zksync"
-    to_chain = "base"
+    from_chains = ["arbitrum", "optimism", "base", "scroll", "linea"]
+    to_chain = "zksync"
 
     min_amount = 0.005
     max_amount = 0.0051
@@ -85,8 +86,9 @@ async def bridge_orbiter(account_id, key, proxy):
     min_percent = 5
     max_percent = 10
     save_funds = [0.0006, 0.001]
+    min_required_amount = 0.001
 
-    orbiter = Orbiter(account_id, key, from_chain, proxy)
+    orbiter = Orbiter(account_id, key, from_chains, proxy, min_required_amount)
     await orbiter.bridge(to_chain, min_amount, max_amount, decimal, all_amount, min_percent, max_percent, save_funds)
 
 
