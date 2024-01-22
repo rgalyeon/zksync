@@ -923,7 +923,7 @@ async def custom_routes(account_id, key, proxy):
     await routes.start(use_modules, sleep_from, sleep_to, random_module)
 
 
-async def automatic_routes(account_id, key, type_account):
+async def automatic_routes(account_id, key, proxy):
     """
     Модуль автоматически генерирует пути по которому пройдет кошелек,
     меняя вероятности выбрать тот или иной модуль для каждого кошелька
@@ -949,7 +949,7 @@ async def automatic_routes(account_id, key, type_account):
     expensive_modules = [swap_multiswap, deposit_reactorfusion, deposit_zerolend, deposit_basilisk, deposit_eralend,
                          create_omnisea]
 
-    routes = Routes(account_id, key, type_account)
+    routes = Routes(account_id, key, proxy)
     await routes.start_automatic(transaction_count, cheap_ratio, sleep_from, sleep_to, cheap_modules, expensive_modules)
 
 
