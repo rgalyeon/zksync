@@ -122,6 +122,9 @@ with open("data/abi/gnosis/abi.json", "r") as file:
 with open("data/abi/zkstars/abi.json", "r") as file:
     ZKSTARS_ABI = json.load(file)
 
+with open("data/abi/owlto/abi.json", "r") as file:
+    OWLTO_CHECKIN_ABI = json.load(file)
+
 with open('data/orbiter_maker.json', 'r') as file:
     ORBITER_MAKER = json.load(file)
 
@@ -243,6 +246,8 @@ ENS_CONTRACT = "0x935442af47f3dc1c11f006d551e13769f12eab13"
 OMNISEA_CONTRACT = "0x1Ecd053f681a51E37087719653f3f0FFe54750C0"
 
 SAFE_CONTRACT = "0xDAec33641865E4651fB43181C6DB6f7232Ee91c2"
+
+OWLTO_CHECKIN_CONTRACT = "0xD48e3caf0D948203434646a3f3e80f8Ee18007dc"
 
 CHAINS_OKX = {
     'linea': 'Linea',

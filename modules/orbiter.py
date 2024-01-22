@@ -9,7 +9,7 @@ from utils.helpers import retry
 from .account import Account
 from config import ORBITER_MAKER, RPC
 from typing import List
-from web3 import Web3
+from web3 import AsyncWeb3, Web3
 from eth_account import Account as EthereumAccount
 
 
@@ -130,7 +130,7 @@ class Orbiter(Account):
         contract = ORBITER_MAKER[maker_x_maker]['ETH-ETH']['makerAddress']
 
         if all_amount:
-            save_funds = Web3.from_wei(Web3.to_wei(random.uniform(*save_funds), 'ether'), 'ether')
+            save_funds = AsyncWeb3.from_wei(AsyncWeb3.to_wei(random.uniform(*save_funds), 'ether'), 'ether')
             amount -= save_funds
 
         logger.info(

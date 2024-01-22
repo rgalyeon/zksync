@@ -830,6 +830,20 @@ async def mint_nft(account_id, key, proxy):
     await minter.mint_nft(contracts)
 
 
+async def owlto_check_in(account_id, key, proxy):
+    """
+    Owlto daily check in. Send tx and press button on site
+    ______________________________________________________
+
+    ref - wallet address of referral
+    """
+
+    ref = ""
+
+    owlto = Owlto(account_id, key, proxy)
+    await owlto.check_in(ref)
+
+
 async def custom_routes(account_id, key, proxy):
     """
     BRIDGE:

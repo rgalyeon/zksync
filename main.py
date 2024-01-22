@@ -77,6 +77,7 @@ def get_module():
             Choice(f"{next(counter)}) Send message L2Telegraph", send_message),
             Choice(f"{next(counter)}) Dmail sending mail", send_mail),
             Choice(f"{next(counter)}) Create gnosis safe", create_safe),
+            Choice(f"{next(counter)}) Owlto daily check in", owlto_check_in),
             Choice(f"{next(counter)}) Swap tokens to ETH", swap_tokens),
             Choice(f"{next(counter)}) MultiSwap", swap_multiswap),
             Choice(f"{next(counter)}) Use custom routes", custom_routes),

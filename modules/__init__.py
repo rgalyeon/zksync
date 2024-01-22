@@ -36,3 +36,4 @@ from .safe import GnosisSafe
 from .zkstars import ZkStars
 from .okx import Okx
 from .encrypt_privates import encrypt_privates
+from .owlto import Owlto

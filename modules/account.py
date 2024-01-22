@@ -21,11 +21,12 @@ class Account:
         self.chain = chain
         self.explorer = RPC[chain]["explorer"]
         self.token = RPC[chain]["token"]
+        self.proxy = f"http://{proxy}"
 
         request_kwargs = {}
         
-        if proxy:
-            request_kwargs = {"proxy": f"http://{proxy}"}
+        if self.proxy:
+            request_kwargs = {"proxy": self.proxy}
 
         self.w3 = AsyncWeb3(
             AsyncWeb3.AsyncHTTPProvider(random.choice(RPC[chain]["rpc"])),
