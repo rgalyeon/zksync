@@ -30,7 +30,7 @@ class Routes(Account):
                 modules_to_run.append(result)
         return modules_to_run
 
-    def generate_module_sequence(self, cheap_modules, expensive_modules, num_transactions, cheap_ratio=1.0):
+    def generate_module_sequence(self, cheap_modules, expensive_modules, num_transactions, cheap_ratio, use_none):
         """
         Генерирует случайную последовательность модулей.
 
@@ -38,13 +38,14 @@ class Routes(Account):
         :param cheap_ratio: доля дешевых транзакций от общего числа (от 0 до 1)
         :param cheap_modules
         :param expensive_modules
+        :param use_none
         """
         sequence = []
         for _ in range(num_transactions):
             if random.random() < cheap_ratio:
-                module = random.choice(cheap_modules + [None])
+                module = random.choice(cheap_modules + ([None] if use_none else []))
             else:
-                module = random.choice(expensive_modules + [None])
+                module = random.choice(expensive_modules + ([None] if use_none else []))
 
             # Случайно решаем, добавлять ли вложенность или повторения
             if random.random() < 0.2:  # 20% шанс добавить вложенность
@@ -81,18 +82,19 @@ class Routes(Account):
 
     async def start_automatic(self, transaction_count, cheap_ratio,
                               sleep_from, sleep_to,
-                              cheap_modules, expensive_modules):
+                              cheap_modules, expensive_modules,
+                              use_none):
         logger.info(f"[{self.account_id}][{self.address}] Start using automatic routes")
 
-        use_modules = self.generate_module_sequence(cheap_modules, expensive_modules, transaction_count, cheap_ratio)
+        use_modules = self.generate_module_sequence(cheap_modules, expensive_modules,
+                                                    transaction_count, cheap_ratio,
+                                                    use_none)
 
         run_modules = self.run_modules(use_modules)
 
         for module in run_modules:
             if module is None:
                 logger.info(f"[{self.account_id}][{self.address}] Skip module")
-                continue
-
-            await module(self.account_id, self.private_key, self.proxy)
-
+            else:
+                await module(self.account_id, self.private_key, self.proxy)
             await sleep(sleep_from, sleep_to)

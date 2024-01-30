@@ -944,13 +944,17 @@ async def automatic_routes(account_id, key, proxy):
     sleep_from = 30000
     sleep_to = 50000
 
+    use_none = True
     cheap_modules = [send_mail, enable_collateral_eralend, enable_collateral_basilisk, enable_collateral_reactorfusion,
                      create_safe, mint_zkstars, mint_tavaera]
     expensive_modules = [swap_multiswap, deposit_reactorfusion, deposit_zerolend, deposit_basilisk, deposit_eralend,
                          create_omnisea]
 
     routes = Routes(account_id, key, proxy)
-    await routes.start_automatic(transaction_count, cheap_ratio, sleep_from, sleep_to, cheap_modules, expensive_modules)
+    await routes.start_automatic(transaction_count, cheap_ratio,
+                                 sleep_from, sleep_to,
+                                 cheap_modules, expensive_modules,
+                                 use_none)
 
 
 async def multi_approve(account_id, key, proxy):
